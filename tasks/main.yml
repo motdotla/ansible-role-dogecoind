@@ -1,0 +1,26 @@
+---
+- name: Checkout dogecoin
+  git: repo=https://github.com/dogecoin/dogecoin
+       dest=/tmp/dogecoin
+       version=v1.3
+
+- name: Build dogecoind
+  command: chdir=/tmp/dogecoin/src make -j2 -f makefile.unix USE_UPNP=- creates=/usr/local/bin/dogecoind
+
+- name: Move dogcoind to /usr/local/bin
+  command: cp /tmp/dogecoin/src/dogecoind /usr/local/bin/dogecoind creates=/usr/local/bin/dogecoind
+
+- name: Setup ~/.dogecoin
+  shell: mkdir ~/.dogecoin creates=~/.dogecoin/dogecoin.conf
+
+- name: setup ~/.dogecoin/dogecoin.conf
+  copy: src=./dogecoin.conf dest=~/.dogecoin/dogecoin.conf mode=0600
+
+- name: Run dogecoind
+  shell: dogecoind
+
+- name: Pause for 5 seconds
+  pause: seconds=5
+
+- name: Simulate pressing enter
+  shell: echo
